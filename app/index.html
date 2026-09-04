@@ -431,6 +431,15 @@
       justify-content:flex-end;
       gap:10px;
     }
+
+    .reference-text{
+      font-size:11px;
+      color:#9ca3af;
+      font-style:italic;
+      text-align:center;
+      padding:10px 0 0;
+      margin-top:4px;
+    }
   </style>
 </head>
 
@@ -487,6 +496,8 @@
       <span id="saveLabel">Save</span>
     </button>
   </div>
+
+  <div class="reference-text" id="referenceText">Processing PO for Sales Quote Number: —</div>
 </div>
 
 <div class="modal-backdrop" id="confirmModal">
@@ -650,12 +661,21 @@ function getStageColors(stageName){
 function updateStageDisplay(stageName){
   const stageDisplay = document.getElementById("stageDisplay");
   const stageText = document.getElementById("stageText");
-  const stageDot = stageDisplay.querySelector(".stage-dot");
 
   const colors = getStageColors(stageName);
 
   stageDisplay.style.backgroundColor = colors.bg;
-  if(stageDot) stageDot.style.backgroundColor = colors.dot;
+  stageDisplay.style.display = "flex";
+  stageDisplay.style.alignItems = "center";
+  stageDisplay.style.gap = "10px";
+
+  const stageDot = stageDisplay.querySelector(".stage-dot");
+  if(stageDot){
+    stageDot.style.backgroundColor = colors.dot;
+    stageDot.style.width = "10px";
+    stageDot.style.height = "10px";
+    stageDot.style.borderRadius = "50%";
+  }
 
   stageText.textContent = stageName || "—";
 }
@@ -690,6 +710,11 @@ ZOHO.embeddedApp.on("PageLoad", async function(data){
     document.getElementById("poField").value = record.Customer_PO_No || "";
     updateStageDisplay(quoteStage);
     document.getElementById("validDisplay").innerText = validTill  || "—";
+
+    const referenceText = document.getElementById("referenceText");
+    if(referenceText){
+      referenceText.textContent = "Processing PO for Sales Quote Number: " + recordId;
+    }
 
     applyValidTillColor(validTill);
     setStatus("","");

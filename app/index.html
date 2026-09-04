@@ -714,6 +714,10 @@ ZOHO.embeddedApp.on("PageLoad", async function(data){
     const referenceText = document.getElementById("referenceText");
     if(referenceText){
       const quoteNumber = record.CRM_Quote_Number || record.Quote_Number || record.Name || recordId;
+      console.log("CRM_Quote_Number:", record.CRM_Quote_Number);
+      console.log("Quote_Number:", record.Quote_Number);
+      console.log("Name:", record.Name);
+      console.log("Using:", quoteNumber);
       referenceText.textContent = "Processing PO for Sales Quote Number: " + quoteNumber;
     }
 

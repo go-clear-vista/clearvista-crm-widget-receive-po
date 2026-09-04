@@ -27,6 +27,21 @@
       --yellow:#b45309;
       --yellow-bg:#fffbeb;
       --yellow-border:#fcd34d;
+
+      --stage-draft-bg:#dbeafe;
+      --stage-draft-dot:#3b82f6;
+      --stage-negotiation-bg:#dcfce7;
+      --stage-negotiation-dot:#22c55e;
+      --stage-sent-bg:#bfdbfe;
+      --stage-sent-dot:#0ea5e9;
+      --stage-onhold-bg:#fef3c7;
+      --stage-onhold-dot:#f59e0b;
+      --stage-quoteready-bg:#dcfce7;
+      --stage-quoteready-dot:#84cc16;
+      --stage-closedwon-bg:#bbf7d0;
+      --stage-closedwon-dot:#16a34a;
+      --stage-closedlost-bg:#fecaca;
+      --stage-closedlost-dot:#ef4444;
     }
 
     *{box-sizing:border-box}
@@ -106,6 +121,73 @@
 
     .valid-box.valid{
       background:var(--valid-green);
+    }
+
+    .stage-box{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:500;
+    }
+
+    .stage-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      flex-shrink:0;
+    }
+
+    .info-box.stage-display{
+      transition:background-color .2s ease, color .2s ease;
+    }
+
+    .info-box.stage-display.draft{
+      background:var(--stage-draft-bg);
+    }
+    .info-box.stage-display.draft .stage-dot{
+      background:var(--stage-draft-dot);
+    }
+
+    .info-box.stage-display.negotiation{
+      background:var(--stage-negotiation-bg);
+    }
+    .info-box.stage-display.negotiation .stage-dot{
+      background:var(--stage-negotiation-dot);
+    }
+
+    .info-box.stage-display.sent{
+      background:var(--stage-sent-bg);
+    }
+    .info-box.stage-display.sent .stage-dot{
+      background:var(--stage-sent-dot);
+    }
+
+    .info-box.stage-display.onhold{
+      background:var(--stage-onhold-bg);
+    }
+    .info-box.stage-display.onhold .stage-dot{
+      background:var(--stage-onhold-dot);
+    }
+
+    .info-box.stage-display.quoteready{
+      background:var(--stage-quoteready-bg);
+    }
+    .info-box.stage-display.quoteready .stage-dot{
+      background:var(--stage-quoteready-dot);
+    }
+
+    .info-box.stage-display.closedwon{
+      background:var(--stage-closedwon-bg);
+    }
+    .info-box.stage-display.closedwon .stage-dot{
+      background:var(--stage-closedwon-dot);
+    }
+
+    .info-box.stage-display.closedlost{
+      background:var(--stage-closedlost-bg);
+    }
+    .info-box.stage-display.closedlost .stage-dot{
+      background:var(--stage-closedlost-dot);
     }
 
     input[type="text"],
@@ -380,7 +462,10 @@
 
       <div>
         <label>Quote Stage</label>
-        <div class="info-box" id="stageDisplay">Loading...</div>
+        <div class="info-box stage-display" id="stageDisplay">
+          <div class="stage-dot"></div>
+          <span id="stageText">Loading...</span>
+        </div>
       </div>
 
       <div>
@@ -545,6 +630,31 @@ function safeJsonParse(val){
   }
 }
 
+function getStageClass(stageName){
+  if(!stageName) return "";
+  const normalized = String(stageName).toLowerCase().trim();
+  if(normalized === "draft") return "draft";
+  if(normalized === "negotiation") return "negotiation";
+  if(normalized === "sent") return "sent";
+  if(normalized === "on hold") return "onhold";
+  if(normalized === "quote ready") return "quoteready";
+  if(normalized === "closed won") return "closedwon";
+  if(normalized === "closed lost") return "closedlost";
+  return "";
+}
+
+function updateStageDisplay(stageName){
+  const stageDisplay = document.getElementById("stageDisplay");
+  const stageText = document.getElementById("stageText");
+
+  const stageClass = getStageClass(stageName);
+
+  stageDisplay.className = "info-box stage-display stage-box";
+  if(stageClass) stageDisplay.classList.add(stageClass);
+
+  stageText.textContent = stageName || "—";
+}
+
 function executeFunction(functionName, argsObj){
   const req_data = {
     arguments: JSON.stringify(argsObj)
@@ -573,7 +683,7 @@ ZOHO.embeddedApp.on("PageLoad", async function(data){
     validTill  = record.Valid_Till  || "";
 
     document.getElementById("poField").value = record.Customer_PO_No || "";
-    document.getElementById("stageDisplay").innerText = quoteStage || "—";
+    updateStageDisplay(quoteStage);
     document.getElementById("validDisplay").innerText = validTill  || "—";
 
     applyValidTillColor(validTill);
@@ -605,7 +715,7 @@ async function commitSave(newStage){
       throw new Error((result && result.message) ? result.message : "Stage update failed.");
     }
 
-    document.getElementById("stageDisplay").innerText = newStage || "—";
+    updateStageDisplay(newStage);
     quoteStage = newStage;
 
     document.getElementById("poField").disabled = true;

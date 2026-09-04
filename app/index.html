@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://live.zwidgets.com/js-sdk/1.5/ZohoEmbededAppSDK.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --border:#e7eaf0;
+      --text:#0f172a;
+      --muted:#64748b;
+      --blue:#2f6fed;
+      --blue2:#1f57cf;
+      --green:#16a34a;
+      --red:#dc2626;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:14px;
+
+      --valid-red:#fdecec;
+      --valid-green:#edf9f0;
+      --valid-neutral:#f8fafc;
+
+      --yellow:#b45309;
+      --yellow-bg:#fffbeb;
+      --yellow-border:#fcd34d;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      padding:18px;
+      background:linear-gradient(180deg,#f6f8fb 0%,#f3f6fb 100%);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+    }
+
+    .panel{
+      max-width:680px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      margin:0 auto;
+    }
+
+    .header{
+      padding:18px 20px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .header h1{
+      margin:0;
+      font-size:16px;
+      font-weight:750;
+    }
+
+    .header p{
+      margin:6px 0 0;
+      font-size:12.5px;
+      color:var(--muted);
+    }
+
+    .content{
+      padding:18px 20px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+
+    label{
+      display:block;
+      font-size:12.5px;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-weight:650;
+    }
+
+    .info-box{
+      min-height:42px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      font-size:14px;
+      display:flex;
+      align-items:center;
+    }
+
+    .valid-box{
+      background:var(--valid-neutral);
+      transition:background-color .2s ease;
+    }
+
+    .valid-box.expired{
+      background:var(--valid-red);
+    }
+
+    .valid-box.valid{
+      background:var(--valid-green);
+    }
+
+    input[type="text"],
+    select{
+      appearance:none;
+      width:100%;
+      height:42px;
+      padding:0 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      font-size:14px;
+      outline:none;
+    }
+
+    input[type="text"]:focus,
+    select:focus{
+      border-color:rgba(47,111,237,.7);
+      box-shadow:0 0 0 3px rgba(47,111,237,.18);
+    }
+
+    input[type="text"]:disabled,
+    select:disabled{
+      background:#f8fafc;
+      color:#64748b;
+    }
+
+    .select-wrap{
+      position:relative;
+    }
+
+    .select-wrap select{
+      padding-right:40px;
+    }
+
+    .chev{
+      position:absolute;
+      right:14px;
+      top:50%;
+      width:10px;
+      height:10px;
+      transform:translateY(-50%) rotate(45deg);
+      border-right:2px solid #94a3b8;
+      border-bottom:2px solid #94a3b8;
+      pointer-events:none;
+    }
+
+    .status{
+      display:none;
+      margin-top:14px;
+      font-size:13px;
+      color:var(--muted);
+      min-height:28px;
+      padding:12px;
+      border:1px dashed #e2e8f0;
+      border-radius:12px;
+      background:#fbfdff;
+      align-items:center;
+      gap:10px;
+    }
+
+    .status.show{
+      display:flex;
+    }
+
+    .status.success{
+      color:var(--green);
+      border-color:#bbf7d0;
+      background:#f0fdf4;
+    }
+
+    .status.error{
+      color:var(--red);
+      border-color:#fecaca;
+      background:#fef2f2;
+    }
+
+    .footer{
+      padding:14px 20px;
+      border-top:1px solid var(--border);
+      background:#fbfcfe;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+    }
+
+    .btn{
+      height:38px;
+      padding:0 14px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-weight:750;
+      font-size:13px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .btn-primary{
+      border-color:rgba(47,111,237,.35);
+      background:linear-gradient(180deg,var(--blue) 0%,var(--blue2) 100%);
+      color:#fff;
+    }
+
+    .btn-success{
+      background:var(--green);
+      border-color:var(--green);
+      color:#fff;
+    }
+
+    .btn-warning{
+      background:#d97706;
+      border-color:#b45309;
+      color:#fff;
+    }
+
+    .btn:disabled{
+      opacity:.7;
+      cursor:default;
+    }
+
+    .spinner{
+      width:16px;
+      height:16px;
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,.45);
+      border-top-color:#fff;
+      animation:spin .8s linear infinite;
+      display:none;
+    }
+
+    .spinner.show{display:inline-block}
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    .checkmark{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:2px solid var(--green);
+      display:none;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .checkmark.show{
+      display:inline-block;
+    }
+
+    .checkmark:after{
+      content:'';
+      position:absolute;
+      left:4px;
+      top:1px;
+      width:5px;
+      height:10px;
+      border-right:3px solid var(--green);
+      border-bottom:3px solid var(--green);
+      transform:rotate(45deg);
+    }
+
+    .modal-backdrop{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.45);
+      backdrop-filter:blur(2px);
+      z-index:100;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .modal-backdrop.show{
+      display:flex;
+    }
+
+    .modal{
+      background:#fff;
+      border-radius:var(--radius);
+      box-shadow:0 24px 60px rgba(15,23,42,.18);
+      max-width:420px;
+      width:calc(100% - 32px);
+      overflow:hidden;
+      animation:pop .18s ease;
+    }
+
+    @keyframes pop{
+      from{transform:scale(.93);opacity:0}
+      to{transform:scale(1);opacity:1}
+    }
+
+    .modal-header{
+      padding:18px 18px 0;
+    }
+
+    .modal-icon{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      background:var(--yellow-bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:10px;
+    }
+
+    .modal-icon svg{
+      width:20px;
+      height:20px;
+    }
+
+    .modal-title{
+      margin:0 0 4px;
+      font-size:15px;
+      font-weight:750;
+    }
+
+    .modal-body{
+      padding:6px 18px 16px;
+    }
+
+    .modal-msg{
+      font-size:13.5px;
+      color:var(--yellow);
+      background:var(--yellow-bg);
+      border:1px solid var(--yellow-border);
+      border-radius:10px;
+      padding:12px 14px;
+      line-height:1.6;
+    }
+
+    .modal-footer{
+      padding:12px 18px;
+      border-top:1px solid var(--border);
+      background:#fbfcfe;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="panel">
+  <div class="header">
+    <h1>Receive Customer PO</h1>
+    <p>Enter the customer PO number and update the quote details.</p>
+  </div>
+
+  <div class="content">
+    <div class="grid">
+
+      <div>
+        <label for="poField">Customer PO Number</label>
+        <input type="text" id="poField" />
+      </div>
+
+      <div>
+        <label for="orderPriorityField">Order Priority</label>
+        <div class="select-wrap">
+          <select id="orderPriorityField" disabled>
+            <option value="">Loading...</option>
+          </select>
+          <span class="chev"></span>
+        </div>
+      </div>
+
+      <div>
+        <label>Quote Stage</label>
+        <div class="info-box" id="stageDisplay">Loading...</div>
+      </div>
+
+      <div>
+        <label>Valid Until</label>
+        <div class="info-box valid-box" id="validDisplay">Loading...</div>
+      </div>
+
+    </div>
+
+    <div class="status" id="message">
+      <div class="checkmark" id="checkmark"></div>
+      <span id="messageText"></span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-primary" id="saveBtn" type="button" onclick="savePO()">
+      <span class="spinner" id="spinner"></span>
+      <span id="saveLabel">Save</span>
+    </button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <p class="modal-title">Quote Not Confirmed Yet</p>
+    </div>
+    <div class="modal-body">
+      <div class="modal-msg">
+        This quote hasn't been confirmed yet. Click <strong>On Hold</strong> to flag it for review with your Account Manager, or click <strong>Closed Won</strong> to proceed and create a sales order now.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-warning" type="button" onclick="commitSave('On Hold')">On Hold</button>
+      <button class="btn btn-success" type="button" onclick="commitSave('Closed Won')">Closed Won</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let recordId = null;
+let quoteStage = null;
+let validTill = null;
+let orderPriorityLoaded = false;
+let pendingPoValue = null;
+let pendingOrderPriority = null;
+
+const MODULE_API_NAME = "Quotes";
+const ORDER_PRIORITY_API_NAME = "Order_Priority";
+const FUNCTION_NAME = "stage_update";
+
+function setStatus(msg, type){
+  const status = document.getElementById("message");
+  const text = document.getElementById("messageText");
+  const check = document.getElementById("checkmark");
+
+  status.className = "status";
+  check.classList.remove("show");
+  text.textContent = msg || "";
+
+  if(!msg) return;
+
+  status.classList.add("show");
+  if(type === "success"){ status.classList.add("success"); check.classList.add("show"); }
+  if(type === "error")  { status.classList.add("error"); }
+}
+
+function setBusy(isBusy){
+  const saveBtn   = document.getElementById("saveBtn");
+  const spinner   = document.getElementById("spinner");
+  const saveLabel = document.getElementById("saveLabel");
+
+  saveBtn.disabled = isBusy;
+  spinner.classList.toggle("show", isBusy);
+  saveLabel.textContent = isBusy ? "Saving..." : "Save";
+}
+
+function getLocalDateString(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+function applyValidTillColor(validDateStr){
+  const validDisplay = document.getElementById("validDisplay");
+  validDisplay.classList.remove("expired","valid");
+  if(!validDateStr) return;
+  const today = getLocalDateString();
+  validDisplay.classList.add(validDateStr < today ? "expired" : "valid");
+}
+
+function renderOrderPriorityOptions(pickListValues, selectedValue){
+  const select = document.getElementById("orderPriorityField");
+  select.innerHTML = "";
+
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.textContent = "— Select Order Priority —";
+  select.appendChild(ph);
+
+  pickListValues.forEach(function(item){
+    if(!item) return;
+    const actualValue  = String(item.actual_value  || item.display_value || "").trim();
+    const displayValue = String(item.display_value || item.actual_value  || "").trim();
+    if(!actualValue) return;
+
+    const option = document.createElement("option");
+    option.value = actualValue;
+    option.textContent = displayValue;
+    if(actualValue === String(selectedValue || "")) option.selected = true;
+    select.appendChild(option);
+  });
+
+  select.disabled = false;
+  orderPriorityLoaded = true;
+}
+
+async function loadOrderPriorityPicklist(selectedValue){
+  const select = document.getElementById("orderPriorityField");
+  select.disabled = true;
+  select.innerHTML = '<option value="">Loading...</option>';
+
+  const metaResp = await ZOHO.CRM.META.getFields({ Entity: MODULE_API_NAME });
+  const fields   = (metaResp && metaResp.fields) ? metaResp.fields : [];
+  const fieldMeta = fields.find(function(f){ return f && f.api_name === ORDER_PRIORITY_API_NAME; });
+
+  if(!fieldMeta) throw new Error("Order Priority field metadata not found.");
+
+  const pickListValues = fieldMeta.pick_list_values || fieldMeta.picklist_values || [];
+  if(!Array.isArray(pickListValues) || !pickListValues.length) throw new Error("Order Priority picklist values not found.");
+
+  renderOrderPriorityOptions(pickListValues, selectedValue);
+}
+
+function showError(text){
+  setStatus(text, "error");
+}
+
+function parseFunctionResult(resp){
+  if(!resp) return null;
+  if(resp.details && resp.details.output) return resp.details.output;
+  if(resp.data) return resp.data;
+  return resp;
+}
+
+function safeJsonParse(val){
+  if(val == null) return null;
+  if(typeof val === "object") return val;
+  if(typeof val !== "string") return val;
+
+  try{
+    return JSON.parse(val);
+  }catch(e){
+    return val;
+  }
+}
+
+function executeFunction(functionName, argsObj){
+  const req_data = {
+    arguments: JSON.stringify(argsObj)
+  };
+
+  return ZOHO.CRM.FUNCTIONS.execute(functionName, req_data)
+    .then(function(resp){
+      const raw = parseFunctionResult(resp);
+      return safeJsonParse(raw);
+    });
+}
+
+ZOHO.embeddedApp.on("PageLoad", async function(data){
+  recordId = Array.isArray(data.EntityId) ? data.EntityId[0] : data.EntityId;
+
+  try {
+    const response = await ZOHO.CRM.API.getRecord({
+      Entity: MODULE_API_NAME,
+      RecordID: recordId
+    });
+
+    const record = response && response.data && response.data[0] ? response.data[0] : null;
+    if(!record) throw new Error("Quote record not found.");
+
+    quoteStage = record.Quote_Stage || "";
+    validTill  = record.Valid_Till  || "";
+
+    document.getElementById("poField").value = record.Customer_PO_No || "";
+    document.getElementById("stageDisplay").innerText = quoteStage || "—";
+    document.getElementById("validDisplay").innerText = validTill  || "—";
+
+    applyValidTillColor(validTill);
+    setStatus("","");
+
+    await loadOrderPriorityPicklist(record.Order_Priority || "");
+
+  } catch(error){
+    console.error(error);
+    showError("Error loading quote data.");
+  }
+});
+
+async function commitSave(newStage){
+  document.getElementById("confirmModal").classList.remove("show");
+
+  setBusy(true);
+  setStatus("","");
+
+  try {
+    const result = await executeFunction(FUNCTION_NAME, {
+      quote_id: String(recordId),
+      po_number: String(pendingPoValue || ""),
+      order_priority: String(pendingOrderPriority || ""),
+      stage: String(newStage || "")
+    });
+
+    if(!result || result.success !== true){
+      throw new Error((result && result.message) ? result.message : "Stage update failed.");
+    }
+
+    document.getElementById("stageDisplay").innerText = newStage || "—";
+    quoteStage = newStage;
+
+    document.getElementById("poField").disabled = true;
+    document.getElementById("orderPriorityField").disabled = true;
+
+    const saveBtn = document.getElementById("saveBtn");
+    saveBtn.classList.remove("btn-primary");
+    saveBtn.classList.add("btn-success");
+    document.getElementById("saveLabel").textContent = "Done";
+    document.getElementById("spinner").classList.remove("show");
+
+    setStatus(
+      'PO updated with "' + pendingPoValue + '". Order Priority updated. Quote moved to "' + newStage + '".',
+      "success"
+    );
+
+    setTimeout(function(){
+      try      { ZOHO.CRM.UI.Popup.closeReload(); }
+      catch(e) { try { ZOHO.CRM.UI.Popup.close(); } catch(e2){ try{ window.close(); }catch(e3){} } }
+    }, 3000);
+
+  } catch(error){
+    console.error(error);
+    showError(error && error.message ? error.message : "Error saving PO.");
+    setBusy(false);
+  }
+}
+
+async function savePO(){
+  const poInput  = document.getElementById("poField");
+  const poValue  = poInput.value.trim();
+  const opSelect = document.getElementById("orderPriorityField");
+  const opValue  = opSelect.value;
+
+  if(!poValue)              { showError("PO Number cannot be empty."); return; }
+  if(!orderPriorityLoaded)  { showError("Order Priority is not loaded."); return; }
+
+  pendingPoValue       = poValue;
+  pendingOrderPriority = opValue;
+
+  if(quoteStage === "Draft" || quoteStage === "Sent"){
+    document.getElementById("confirmModal").classList.add("show");
+    return;
+  }
+
+  if(quoteStage === "On Hold"){
+    await commitSave("Closed Won");
+    return;
+  }
+
+  if(quoteStage === "Quote Ready"){
+    const today    = getLocalDateString();
+    const newStage = (validTill && validTill >= today) ? "Closed Won" : "On Hold";
+    await commitSave(newStage);
+    return;
+  }
+
+  await commitSave(quoteStage);
+}
+
+ZOHO.embeddedApp.init();
+</script>
+
+</body>
+</html>

@@ -630,27 +630,32 @@ function safeJsonParse(val){
   }
 }
 
-function getStageClass(stageName){
-  if(!stageName) return "";
+function getStageColors(stageName){
+  if(!stageName) return { bg: "#fff", dot: "#64748b" };
   const normalized = String(stageName).toLowerCase().trim();
-  if(normalized === "draft") return "draft";
-  if(normalized === "negotiation") return "negotiation";
-  if(normalized === "sent") return "sent";
-  if(normalized === "on hold") return "onhold";
-  if(normalized === "quote ready") return "quoteready";
-  if(normalized === "closed won") return "closedwon";
-  if(normalized === "closed lost") return "closedlost";
-  return "";
+
+  const colors = {
+    "draft": { bg: "#dbeafe", dot: "#3b82f6" },
+    "negotiation": { bg: "#dcfce7", dot: "#22c55e" },
+    "sent": { bg: "#bfdbfe", dot: "#0ea5e9" },
+    "on hold": { bg: "#fef3c7", dot: "#f59e0b" },
+    "quote ready": { bg: "#dcfce7", dot: "#84cc16" },
+    "closed won": { bg: "#bbf7d0", dot: "#16a34a" },
+    "closed lost": { bg: "#fecaca", dot: "#ef4444" }
+  };
+
+  return colors[normalized] || { bg: "#fff", dot: "#64748b" };
 }
 
 function updateStageDisplay(stageName){
   const stageDisplay = document.getElementById("stageDisplay");
   const stageText = document.getElementById("stageText");
+  const stageDot = stageDisplay.querySelector(".stage-dot");
 
-  const stageClass = getStageClass(stageName);
+  const colors = getStageColors(stageName);
 
-  stageDisplay.className = "info-box stage-display stage-box";
-  if(stageClass) stageDisplay.classList.add(stageClass);
+  stageDisplay.style.backgroundColor = colors.bg;
+  if(stageDot) stageDot.style.backgroundColor = colors.dot;
 
   stageText.textContent = stageName || "—";
 }

@@ -713,8 +713,8 @@ ZOHO.embeddedApp.on("PageLoad", async function(data){
 
     const referenceText = document.getElementById("referenceText");
     if(referenceText){
-      const crmQuoteNumber = record.CRM_Quote_Number || "—";
-      referenceText.textContent = "Processing PO for Sales Quote Number: " + crmQuoteNumber;
+      const quoteNumber = record.CRM_Quote_Number || record.Quote_Number || record.Name || recordId;
+      referenceText.textContent = "Processing PO for Sales Quote Number: " + quoteNumber;
     }
 
     applyValidTillColor(validTill);
